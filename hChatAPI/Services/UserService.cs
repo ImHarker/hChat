@@ -1,4 +1,5 @@
-﻿using hChatAPI.Interfaces;
+﻿using System.Security.Claims;
+using hChatAPI.Interfaces;
 using hChatAPI.Models;
 using hChatAPI.Models.Requests;
 
@@ -62,7 +63,14 @@ namespace hChatAPI.Services {
 			return user;
 		}
 
-
+		public async Task Revoke(string userId) {
+			var user = _context.Users.FirstOrDefault(u => u.Username == userId);
+			if (user == null) {
+				throw new InvalidOperationException("User not found in DB");
+			}
+			user.RevocationTime = DateTime.UtcNow.AddSeconds(-1);
+			await _context.SaveChangesAsync();
+		}
 	}
 
 

@@ -12,12 +12,14 @@ namespace hChatAPI.Controllers {
 		private readonly ILogger<AuthController> _logger;
 		private readonly UserService _userService;
 		private readonly JwtService _jwtService;
+		private readonly DataContext _context;
 
 
-		public AuthController(ILogger<AuthController> logger, UserService userService, JwtService jwtService) {
+		public AuthController(ILogger<AuthController> logger, UserService userService, JwtService jwtService, DataContext context) {
 			_logger = logger;
 			_userService = userService;
 			_jwtService = jwtService;
+			_context = context;
 		}
 
 
@@ -39,7 +41,7 @@ namespace hChatAPI.Controllers {
 		}
 
 		[HttpPost("login")]
-		public IActionResult Login([FromBody] UserAuthRequest request) {
+		public async Task<IActionResult> LoginAsync([FromBody] UserAuthRequest request) {
 
 			if (!ModelState.IsValid) {
 				return BadRequest(ModelState);
@@ -47,6 +49,7 @@ namespace hChatAPI.Controllers {
 
 			try {
 				var user = _userService.Login(request);
+				await _userService.Revoke(user.Username);
 				return Ok(_jwtService.GenerateToken(user.Username));
 			} catch (UserAuthenticationException e) {
 				return BadRequest(e.Message);
@@ -55,9 +58,21 @@ namespace hChatAPI.Controllers {
 		}
 
 		[HttpGet("protected")]
-		[Authorize] // Requires token authentication
+		[Authorize]
 		public IActionResult ProtectedEndpoint() {
 			return Ok("This is a protected endpoint.");
+		}
+
+		[HttpGet("revoke")]
+		[Authorize]
+		public IActionResult Revoke() {
+			try {
+				_userService.Revoke(User.Claims.First(c => c.Type == "userId").Value);
+			}
+			catch (InvalidOperationException e) {
+				return BadRequest();
+			}
+			return Ok("Revoked tokens.");
 		}
 
 
