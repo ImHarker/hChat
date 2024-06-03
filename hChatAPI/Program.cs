@@ -19,8 +19,11 @@ namespace hChatAPI {
 
 			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 			builder.Services.AddEndpointsApiExplorer();
-			builder.Services.AddSwaggerGen(c => {
-				c.SwaggerDoc("v1", new() { Title = "hChatAPI", Version = "v1" });
+			builder.Services.AddSwaggerGen(c =>
+			{
+				c.SwaggerDoc("v1", new OpenApiInfo { Title = "hChatAPI", Version = "v1" });
+
+				//Access Token
 				c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
 					Description = "JWT Authorization header using the Bearer scheme.",
 					Name = "Authorization",
@@ -29,12 +32,39 @@ namespace hChatAPI {
 					Scheme = "bearer"
 				});
 
-				c.AddSecurityRequirement(new OpenApiSecurityRequirement {
+				c.AddSecurityRequirement(new OpenApiSecurityRequirement
+				{
 					{
-						new OpenApiSecurityScheme {
-							Reference = new OpenApiReference {
+						new OpenApiSecurityScheme
+						{
+							Reference = new OpenApiReference
+							{
 								Type = ReferenceType.SecurityScheme,
 								Id = "Bearer"
+							}
+						},
+						new List<string>()
+					}
+				});
+
+				//Refresh Token
+				c.AddSecurityDefinition("RefreshToken", new OpenApiSecurityScheme {
+					Description = "Refresh Token header using the Bearer scheme.",
+					Name = "RefreshToken",
+					In = ParameterLocation.Header,
+					Type = SecuritySchemeType.ApiKey,
+					Scheme = "bearer"
+				});
+
+				c.AddSecurityRequirement(new OpenApiSecurityRequirement
+				{
+					{
+						new OpenApiSecurityScheme
+						{
+							Reference = new OpenApiReference
+							{
+								Type = ReferenceType.SecurityScheme,
+								Id = "RefreshToken"
 							}
 						},
 						new List<string>()
@@ -43,7 +73,8 @@ namespace hChatAPI {
 			});
 
 
-			
+
+
 
 			builder.Services.AddDbContext<DataContext>(options =>
 				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -53,9 +84,10 @@ namespace hChatAPI {
 
 
 			builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+				//Access Token
 				.AddJwtBearer(options => {
-					options.TokenHandlers.Clear(); // Clear the default token validators
-					options.TokenHandlers.Add(builder.Services.BuildServiceProvider().GetRequiredService<JwtSecurityTokenHandler>()); // Add your custom token validator
+					options.TokenHandlers.Clear();
+					options.TokenHandlers.Add(builder.Services.BuildServiceProvider().GetRequiredService<JwtSecurityTokenHandler>());
 					options.TokenValidationParameters = new TokenValidationParameters {
 						ValidateIssuer = true,
 						ValidateAudience = true,
@@ -65,6 +97,37 @@ namespace hChatAPI {
 						ValidAudience = builder.Configuration["Jwt:Audience"],
 						IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(builder.Configuration["Jwt:Key"]))
 					};
+				})
+
+				//Refresh Token
+
+				.AddJwtBearer("RefreshTokenScheme", options =>
+				{
+					options.TokenHandlers.Clear();
+					options.TokenHandlers.Add(builder.Services.BuildServiceProvider().GetRequiredService<JwtSecurityTokenHandler>());
+					options.TokenValidationParameters = new TokenValidationParameters {
+						ValidateIssuer = true,
+						ValidateAudience = true,
+						ValidateLifetime = true,
+						ValidateIssuerSigningKey = true,
+						ValidIssuer = builder.Configuration["Jwt:Issuer"],
+						ValidAudience = "Refresh",
+						IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(builder.Configuration["Jwt:Key"]))
+					};
+
+					options.Events = new JwtBearerEvents {
+						OnMessageReceived = context => {
+							if (context.Request.Headers.ContainsKey("RefreshToken")) {
+								context.Token = context.Request.Headers["RefreshToken"];
+							}
+							else {
+								context.NoResult();
+							}
+
+							return Task.CompletedTask;
+						}
+					};
+
 				});
 
 			builder.Services.AddScoped<UserService>();

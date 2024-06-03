@@ -16,7 +16,7 @@ namespace hChatAPI.Services {
 				_key = configuration["Jwt:Key"];
 			}
 
-			public string GenerateToken(string userId) {
+			public string GenerateAccessToken(string userId) {
 
 				var tokenHandler = new JwtSecurityTokenHandler();
 				var key = Convert.FromBase64String(_key);
@@ -33,6 +33,25 @@ namespace hChatAPI.Services {
 				var token = tokenHandler.CreateToken(tokenDescriptor);
 				return tokenHandler.WriteToken(token);
 			}
+
+			public string GenerateRefreshToken(string userId) {
+
+				var tokenHandler = new JwtSecurityTokenHandler();
+				var key = Convert.FromBase64String(_key);
+
+				var tokenDescriptor = new SecurityTokenDescriptor {
+					Subject = new ClaimsIdentity(new[] { new Claim("userId", userId) }),
+					Expires = DateTime.UtcNow.AddSeconds(10),
+					Issuer = _issuer,
+					Audience = "Refresh",
+					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
+						SecurityAlgorithms.HmacSha512Signature)
+				};
+
+				var token = tokenHandler.CreateToken(tokenDescriptor);
+				return tokenHandler.WriteToken(token);
+			}
+
 		}
 	}
 }

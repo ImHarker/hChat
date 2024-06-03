@@ -50,7 +50,7 @@ namespace hChatAPI.Controllers {
 			try {
 				var user = _userService.Login(request);
 				await _userService.Revoke(user.Username);
-				return Ok(_jwtService.GenerateToken(user.Username));
+				return Ok(_jwtService.GenerateAccessToken(user.Username));
 			} catch (UserAuthenticationException e) {
 				return BadRequest(e.Message);
 			}
@@ -65,14 +65,42 @@ namespace hChatAPI.Controllers {
 
 		[HttpGet("revoke")]
 		[Authorize]
-		public IActionResult Revoke() {
+		public async Task<IActionResult> RevokeAsync() {
 			try {
-				_userService.Revoke(User.Claims.First(c => c.Type == "userId").Value);
+				await _userService.Revoke(User.Claims.First(c => c.Type == "userId").Value);
 			}
 			catch (InvalidOperationException e) {
 				return BadRequest();
 			}
 			return Ok("Revoked tokens.");
+		}
+
+		[HttpGet("logout")]
+		[Authorize]
+		public async Task<IActionResult> LogoutAsync() {
+			try {
+				await _userService.Revoke(User.Claims.First(c => c.Type == "userId").Value);
+			} catch (InvalidOperationException e) {
+				return BadRequest();
+			}
+			return Ok("Logged Out.");
+		}
+
+		[HttpGet("refreshTokenTest")]
+		[Authorize(AuthenticationSchemes = "RefreshTokenScheme")]
+		public async Task<IActionResult> RefreshTokenTest() {
+			return Ok("Valid Refresh Token.");
+		}
+
+		[HttpGet("newRefreshToken")]
+		[Authorize]
+		public async Task<IActionResult> NewRefreshToken() {
+			try {
+				var username = User.Claims.First(c => c.Type == "userId").Value;
+				return Ok(_jwtService.GenerateRefreshToken(username));
+			} catch (InvalidOperationException e) {
+				return BadRequest();
+			}
 		}
 
 
