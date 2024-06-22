@@ -149,6 +149,12 @@ namespace hChatAPI {
 
 			app.UseAuthorization();
 
+			app.UseWebSockets();
+
+			app.UseWhen(context => context.Request.Path == "/ws", appBuilder => {
+				appBuilder.UseMiddleware<WebSocketMiddleware>();
+			});
+
 
 			app.MapControllers();
 
