@@ -80,14 +80,14 @@ namespace hChatAPI {
 				options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
-			builder.Services.AddSingleton<JwtSecurityTokenHandler, CustomSecurityTokenHandler>();
+			builder.Services.AddSingleton<CustomSecurityTokenHandler>();
 
 
 			builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 				//Access Token
 				.AddJwtBearer(options => {
 					options.TokenHandlers.Clear();
-					options.TokenHandlers.Add(builder.Services.BuildServiceProvider().GetRequiredService<JwtSecurityTokenHandler>());
+					options.TokenHandlers.Add(builder.Services.BuildServiceProvider().GetRequiredService<CustomSecurityTokenHandler>());
 					options.TokenValidationParameters = new TokenValidationParameters {
 						ValidateIssuer = true,
 						ValidateAudience = true,
@@ -104,7 +104,7 @@ namespace hChatAPI {
 				.AddJwtBearer("RefreshTokenScheme", options =>
 				{
 					options.TokenHandlers.Clear();
-					options.TokenHandlers.Add(builder.Services.BuildServiceProvider().GetRequiredService<JwtSecurityTokenHandler>());
+					options.TokenHandlers.Add(builder.Services.BuildServiceProvider().GetRequiredService<CustomSecurityTokenHandler>());
 					options.TokenValidationParameters = new TokenValidationParameters {
 						ValidateIssuer = true,
 						ValidateAudience = true,
@@ -132,8 +132,6 @@ namespace hChatAPI {
 
 			builder.Services.AddScoped<UserService>();
 			builder.Services.AddScoped<JwtService>();
-
-
 
 
 

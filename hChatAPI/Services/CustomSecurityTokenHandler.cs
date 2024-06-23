@@ -23,14 +23,14 @@
 
 			var userIdClaim = (validatedToken as JwtSecurityToken)?.Claims.FirstOrDefault(c => c.Type == "userId");
 			if (userIdClaim == null) {
-				throw new InvalidOperationException("User ID claim not found in token");
+				throw new SecurityTokenValidationException("User ID claim not found in token");
 			}
 
 			var userId = userIdClaim.Value;
 
 			var user = scopedDataContext.Users.FirstOrDefault(u => u.Username == userId);
 			if (user == null) {
-				throw new InvalidOperationException("User not found in DB");
+				throw new SecurityTokenValidationException("User not found in DB");
 			}
 
 			var globalRevocationTime = user.RevocationTime;
@@ -39,7 +39,7 @@
 			var issuedAt = jwtSecurityToken?.IssuedAt;
 
 			if (issuedAt < globalRevocationTime) {
-				throw new InvalidOperationException("Token is expired due to global revocation");
+				throw new SecurityTokenValidationException("Token is expired due to global revocation");
 			}
 
 			return standardValidationResult;
