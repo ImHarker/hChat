@@ -1,10 +1,11 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using hChatAPI.Net;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.WebSockets;
 using System.Security.Claims;
 using System.Text;
 
-namespace hChatAPI.Services {
+namespace hChatAPI.Services.WebSockets {
 	public class WebSocketMiddleware {
 		private readonly RequestDelegate _next;
 		private readonly string _issuer;
@@ -29,7 +30,7 @@ namespace hChatAPI.Services {
 			var token = context.Request.Query["token"];
 
 			if (string.IsNullOrEmpty(token)) {
-				context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+				await HandleUnauthorizedRequest(context);
 				return;
 			}
 
@@ -49,15 +50,26 @@ namespace hChatAPI.Services {
 				var userIdClaim = (validatedToken as JwtSecurityToken)?.Claims.FirstOrDefault(c => c.Type == "userId");
 				Console.WriteLine(userIdClaim!.Value);
 
-
 				var socket = await context.WebSockets.AcceptWebSocketAsync();
 				await HandleWebSocket(socket);
 			} catch (SecurityTokenValidationException) {
-				context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-				return;
+				await HandleUnauthorizedRequest(context);
 			} catch (WebSocketException) {
+				await HandleWebSocketError(context);
+			}
+		}
+
+		private async Task HandleUnauthorizedRequest(HttpContext context) {
+			if (!context.Response.HasStarted) {
+				context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+				await context.Response.WriteAsync("Unauthorized request");
+			}
+		}
+
+		private async Task HandleWebSocketError(HttpContext context) {
+			if (!context.Response.HasStarted) {
 				context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-				return;
+				await context.Response.WriteAsync("WebSocket error");
 			}
 		}
 
@@ -66,11 +78,11 @@ namespace hChatAPI.Services {
 			WebSocketReceiveResult result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
 			while (!result.CloseStatus.HasValue) {
-				string message = System.Text.Encoding.UTF8.GetString(buffer, 0, result.Count);
-				Console.WriteLine($"Received message: {message}");
+				if (result.EndOfMessage) {
+					MessageHandler.HandleMessage(socket, buffer);
+					Array.Clear(buffer, 0, buffer.Length);
+				}
 
-				await socket.SendAsync(new ArraySegment<byte>(buffer, 0, result.Count), result.MessageType, result.EndOfMessage, CancellationToken.None);
-				Array.Clear(buffer, 0, buffer.Length);
 				result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 			}
 
