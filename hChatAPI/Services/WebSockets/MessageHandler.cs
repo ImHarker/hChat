@@ -63,6 +63,7 @@ namespace hChatAPI.Services.WebSockets {
                         var packet = new PacketBuilder();
                         packet.WriteOpCode(0x04);
                         packet.WriteMessage($"{user} -> {msg}");
+                        Console.WriteLine($"{user} -> {msg}");
                         var messageBytes = packet.GetPacketBytes();
                         sockets.TryGetValue(user, out var userSocket);
 						if (userSocket != null) await userSocket.SendAsync(new ArraySegment<byte>(messageBytes), WebSocketMessageType.Text, true, CancellationToken.None);

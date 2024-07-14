@@ -9,9 +9,9 @@ using System.Text;
 namespace hChatAPI.Services.WebSockets {
 	public class WebSocketMiddleware {
 		private readonly RequestDelegate _next;
-		private readonly string _issuer;
-		private readonly string _audience;
-		private readonly string _key;
+		private readonly string? _issuer;
+		private readonly string? _audience;
+		private readonly string? _key;
 		private readonly CustomSecurityTokenHandler _customTokenHandler;
 		private readonly IServiceScopeFactory _serviceScopeFactory;
 

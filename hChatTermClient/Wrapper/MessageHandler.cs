@@ -45,6 +45,8 @@ public static class MessageHandler {
 
             case 0x04: {
                 Console.WriteLine("RECEIVE_MESSAGE");
+                var msg = packetReader.ReadMessage();
+                Console.WriteLine(msg);
                 break;
             }
 
