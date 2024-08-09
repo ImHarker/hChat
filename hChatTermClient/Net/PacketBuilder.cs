@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace hChatAPI.Net {
+namespace hChatTermClient.Net {
 	public class PacketBuilder {
 
 		MemoryStream _stream;
@@ -23,5 +23,9 @@ namespace hChatAPI.Net {
 			return _stream.ToArray();
 		}
 
+		public void Clear() {
+			_stream.SetLength(0);
+			_stream.Seek(0, SeekOrigin.Begin);
+		}
 	}
 }

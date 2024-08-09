@@ -1,7 +1,7 @@
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
 using System.Text;
-using hChatAPI.Net;
+using hChatTermClient.Net;
 
 namespace hChatTermClient.Wrapper;
 

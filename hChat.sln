@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "hChatAPI", "hChatAPI\hChatA
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hChatTermClient", "hChatTermClient\hChatTermClient.csproj", "{C65F423D-A6FA-4B5A-824F-E3E8D53D166F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hChatUnitTest", "hChatUnitTest\hChatUnitTest.csproj", "{4BAF726A-0B29-4FF5-B43A-7A8D5168309E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{C65F423D-A6FA-4B5A-824F-E3E8D53D166F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C65F423D-A6FA-4B5A-824F-E3E8D53D166F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C65F423D-A6FA-4B5A-824F-E3E8D53D166F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4BAF726A-0B29-4FF5-B43A-7A8D5168309E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4BAF726A-0B29-4FF5-B43A-7A8D5168309E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4BAF726A-0B29-4FF5-B43A-7A8D5168309E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4BAF726A-0B29-4FF5-B43A-7A8D5168309E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

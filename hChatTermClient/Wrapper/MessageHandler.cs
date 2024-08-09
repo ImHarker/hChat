@@ -1,6 +1,6 @@
 using System.Globalization;
 using System.Net.WebSockets;
-using hChatAPI.Net;
+using hChatTermClient.Net;
 
 namespace hChatTermClient.Wrapper;
 
