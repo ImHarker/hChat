@@ -3,8 +3,28 @@
 namespace hChatAPI.Services
 {
     public static class EncryptedCommunicationHandler {
-	    private static readonly ECDiffieHellman myECDH = ECDiffieHellman.Create();
+	    private static readonly ECDiffieHellman myECDH = ImportECDH();
 
+	    private static ECDiffieHellman ImportECDH() {
+		    try {
+			    var ecdh = ECDiffieHellman.Create();
+			    var file = Path.Combine(Utils.GetLocalAppDataPath(), "key");
+			    if (!File.Exists(file)) {
+				    //TODO: use generated secret
+				    var data = ecdh.ExportEncryptedPkcs8PrivateKeyPem("a", new PbeParameters(PbeEncryptionAlgorithm.Aes256Cbc, HashAlgorithmName.SHA256, 150_000));
+				    File.WriteAllText(file, data);
+				    return ecdh;
+			    }
+			    var encryptedkey = File.ReadAllText(file);
+			    //TODO: use generated secret
+			    ecdh.ImportFromEncryptedPem(encryptedkey, "a");
+			    return ecdh;
+		    }
+		    catch (Exception e) {
+			    Console.WriteLine(e);
+			    throw;
+		    }
+	    }
 	    public static string ExportPublicKey() {
 			return Convert.ToBase64String(myECDH.PublicKey.ExportSubjectPublicKeyInfo());
 		}

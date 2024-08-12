@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using hChatTermClient;
+using hChatTermClient.Wrapper;
 
 namespace hChatUnitTest
 {
