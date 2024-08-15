@@ -1,6 +1,6 @@
 using System.Reflection;
 
-namespace hChatTermClient.Wrapper;
+namespace hChatShared;
 
 public static class Utils {
 

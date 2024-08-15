@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Globalization;
 using System.Net.WebSockets;
-using hChatAPI.Net;
+using hChatShared.Net;
 using Microsoft.EntityFrameworkCore;
 
 namespace hChatAPI.Services.WebSockets {

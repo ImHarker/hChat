@@ -1,6 +1,6 @@
 ﻿using System.Security.Cryptography;
 
-namespace hChatAPI.Services
+namespace hChatShared.Services
 {
     public static class EncryptedCommunicationHandler {
 	    private static readonly ECDiffieHellman myECDH = ImportECDH();

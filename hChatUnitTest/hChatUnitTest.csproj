@@ -22,6 +22,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\hChatShared\hChatShared.csproj" />
       <ProjectReference Include="..\hChatTermClient\hChatTermClient.csproj" />
     </ItemGroup>
 

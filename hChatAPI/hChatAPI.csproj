@@ -22,4 +22,25 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.5.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="Net\**" />
+    <Compile Remove="Utils.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Remove="Net\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="Net\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Net\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\hChatShared\hChatShared.csproj" />
+  </ItemGroup>
+
 </Project>

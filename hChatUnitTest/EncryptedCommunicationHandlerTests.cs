@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using hChatShared.Services;
 using hChatTermClient;
 using hChatTermClient.Wrapper;
 

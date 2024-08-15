@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using hChatAPI.Net;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.WebSockets;

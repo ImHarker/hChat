@@ -1,4 +1,5 @@
-using hChatTermClient.Net;
+
+using hChatShared.Net;
 
 namespace hChatUnitTest;
 

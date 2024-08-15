@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace hChatTermClient.Net {
+namespace hChatShared.Net {
 	public class PacketBuilder {
 
 		MemoryStream _stream;

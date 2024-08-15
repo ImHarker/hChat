@@ -1,8 +1,6 @@
-﻿using System.Reflection;
-using System.Security.Cryptography;
-using System.Text;
-using hChatTermClient.Net;
-using hChatTermClient.Wrapper;
+﻿
+using hChatShared;
+using hChatShared.Services;
 
 namespace hChatTermClient {
 	public class Program {
