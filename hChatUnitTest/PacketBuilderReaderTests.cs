@@ -48,7 +48,7 @@ public class PacketBuilderTests {
         byte[] packetBytes = packetBuilder.GetPacketBytes();
 
         // Assert
-        Assert.That(0, Is.EqualTo(packetBytes.Length));
+        Assert.That(packetBytes.Length, Is.EqualTo(0));
     }
 }
 

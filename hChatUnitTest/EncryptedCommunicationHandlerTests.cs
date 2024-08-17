@@ -1,8 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
+using hChatShared;
 using hChatShared.Services;
-using hChatTermClient;
-using hChatTermClient.Wrapper;
 
 namespace hChatUnitTest
 {
@@ -13,8 +12,8 @@ namespace hChatUnitTest
         private byte[] _publicKey;
 
         [SetUp]
-        public void Setup()
-        {
+        public void Setup() {
+            Utils.CreateAppDataFolder();
             // Set up the ECDH instance and generate the public key
             _myEcdh = ECDiffieHellman.Create();
             _publicKey = Convert.FromBase64String(EncryptedCommunicationHandler.ExportPublicKey());
@@ -42,7 +41,7 @@ namespace hChatUnitTest
             }
 
             // Act
-            var encryptedData = EncryptedCommunicationHandler.EncryptData(_publicKey, message, salt);
+            var encryptedData = EncryptedCommunicationHandler.EncryptData(_publicKey, message);
             var decryptedData = EncryptedCommunicationHandler.DecryptData(_publicKey, encryptedData);
 
             // Assert

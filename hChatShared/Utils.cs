@@ -6,7 +6,7 @@ public static class Utils {
 
     public static string GetLocalAppDataPath() {
         try {
-            var assemblyName = Assembly.GetCallingAssembly().GetName().Name;
+            var assemblyName = Assembly.GetEntryAssembly()!.GetName().Name;
             var localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             if (assemblyName == null) throw new Exception("Unexpected Error - Assembly Name is null");
             return Path.Combine(localAppData, assemblyName);
@@ -26,5 +26,4 @@ public static class Utils {
             throw;
         }
     }
-
 }
