@@ -55,8 +55,14 @@ namespace hChatAPI.Services {
 
 		public User Login(UserAuthRequest request) {
 			var user = _context.Users.FirstOrDefault(u => u.Username == request.Username);
+			var dummyHash = "$2a$12$Nu5.aVWnLDLZfwJHuDQMveUVjpu.zSI4ECFYDvlqeGxtueLmfkNJ.";
+			var hashToVerify = user?.PasswordHash ?? dummyHash;
+			
+			if (!BCrypt.Net.BCrypt.Verify(request.Password, hashToVerify)) {
+				throw new UserAuthenticationException("Invalid username or password");
+			}
 
-			if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash)) {
+			if (user == null) {
 				throw new UserAuthenticationException("Invalid username or password");
 			}
 
