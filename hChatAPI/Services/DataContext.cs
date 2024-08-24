@@ -2,10 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 
 namespace hChatAPI.Services {
-	public class DataContext : DbContext {
-		public DataContext(DbContextOptions<DataContext> options) : base(options) {
-		}
-		
+	public class DataContext(DbContextOptions<DataContext> options) : DbContext(options) {
 		public DbSet<User> Users { get; set; }
 
 	}

@@ -40,7 +40,8 @@ namespace hChatAPI.Services {
 
 			var user = new User {
 				Username = request.Username,
-				PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password, 12)
+				PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password, 12),
+				User2FA = new User2FA()
 			};
 
 			try {
@@ -81,13 +82,9 @@ namespace hChatAPI.Services {
 
 
 	
-	public class UserRegistrationException : Exception {
-		public UserRegistrationException(string message) : base(message) { }
-	}
+	public class UserRegistrationException(string message) : Exception(message);
 
-	public class UserAuthenticationException : Exception {
-		public UserAuthenticationException(string message) : base(message) { }
-	}
+	public class UserAuthenticationException(string message) : Exception(message);
 
 }
 
