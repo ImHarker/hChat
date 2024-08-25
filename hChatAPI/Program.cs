@@ -71,6 +71,31 @@ namespace hChatAPI {
 						new List<string>()
 					}
 				});
+				
+				//Challenge Token
+				c.AddSecurityDefinition("ChallengeToken", new OpenApiSecurityScheme {
+					Description = "Challenge Token header using the Bearer scheme.",
+					Name = "ChallengeToken",
+					In = ParameterLocation.Header,
+					Type = SecuritySchemeType.ApiKey,
+					Scheme = "bearer"
+				});
+
+				c.AddSecurityRequirement(new OpenApiSecurityRequirement
+				{
+					{
+						new OpenApiSecurityScheme
+						{
+							Reference = new OpenApiReference
+							{
+								Type = ReferenceType.SecurityScheme,
+								Id = "ChallengeToken"
+							}
+						},
+						new List<string>()
+					}
+				});
+				
 			});
 
 
@@ -129,7 +154,39 @@ namespace hChatAPI {
 						}
 					};
 
-				});
+				})
+				
+				//Challenge Token
+
+				.AddJwtBearer("ChallengeTokenScheme", options =>
+				{
+					options.TokenHandlers.Clear();
+					options.TokenHandlers.Add(builder.Services.BuildServiceProvider().GetRequiredService<CustomSecurityTokenHandler>());
+					options.TokenValidationParameters = new TokenValidationParameters {
+						ValidateIssuer = true,
+						ValidateAudience = true,
+						ValidateLifetime = true,
+						ValidateIssuerSigningKey = true,
+						ValidIssuer = builder.Configuration["Jwt:Issuer"],
+						ValidAudience = "Challenge",
+						IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(builder.Configuration["Jwt:Key"]))
+					};
+
+					options.Events = new JwtBearerEvents {
+						OnMessageReceived = context => {
+							if (context.Request.Headers.ContainsKey("ChallengeToken")) {
+								context.Token = context.Request.Headers["ChallengeToken"];
+							}
+							else {
+								context.NoResult();
+							}
+
+							return Task.CompletedTask;
+						}
+					};
+
+				})
+				;
 
 			builder.Services.AddScoped<UserService>();
 			builder.Services.AddScoped<JwtService>();

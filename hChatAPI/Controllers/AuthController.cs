@@ -102,8 +102,24 @@ namespace hChatAPI.Controllers {
 				return BadRequest();
 			}
 		}
+		
+		[HttpGet("newChallengeToken")]
+		[Authorize]
+		public async Task<IActionResult> NewChallengeToken() {
+			try {
+				var username = User.Claims.First(c => c.Type == "userId").Value;
+				return Ok(_jwtService.GenerateChallengeToken(username));
+			} catch (InvalidOperationException e) {
+				return BadRequest();
+			}
+		}
+		
 
-
+		[HttpGet("challengeTokenTest")]
+		[Authorize(AuthenticationSchemes = "ChallengeTokenScheme")]
+		public async Task<IActionResult> ChallengeTokenTest() {
+			return Ok("Valid Challenge Token.");
+		}
 
 	}
 
