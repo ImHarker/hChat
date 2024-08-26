@@ -92,6 +92,8 @@ namespace hChatAPI.Services {
 
 			var totp = new TOTP(HashAlgorithm.SHA256, account: user.Username);
 			
+			user.User2FA.BackupCodes.Clear();
+			
 			//TODO: Encrypt using AES-256
 			user.User2FA.SecretKey = totp.SecretKey;
 
