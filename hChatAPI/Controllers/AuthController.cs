@@ -2,7 +2,7 @@
 using hChatAPI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
+using Microsoft.EntityFrameworkCore;
 using static hChatAPI.Services.JWTService;
 
 namespace hChatAPI.Controllers {
@@ -84,6 +84,20 @@ namespace hChatAPI.Controllers {
 				return BadRequest();
 			}
 			return Ok("Logged Out.");
+		}
+        
+		[HttpGet("setup2fa")]
+		[Authorize]
+		public async Task<IActionResult> Setup2FA() {
+			var username = User.Claims.First(c => c.Type == "userId").Value;
+			var user = await _context.Users.Include(user => user.User2FA).FirstOrDefaultAsync(u => u.Username == username);
+			if(user == null) return BadRequest();
+			if (user.User2FA.Is2FAEnabled) return BadRequest("2FA is already enabled");
+
+			var resp = await _userService.Setup2FA(user.Username);
+			var challengeToken = _jwtService.GenerateChallengeToken(user.Username);
+			resp.ChallengeToken = challengeToken;
+			return Ok(resp);
 		}
 
 		[HttpGet("refreshTokenTest")]

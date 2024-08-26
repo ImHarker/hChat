@@ -20,11 +20,11 @@ namespace hChatAPI.Services._2FA {
 
 	public class TOTP {
 		public HashAlgorithm Algorithm { get; }
-		private Period Period { get; }
-		private Digits Digits { get; }
-		private string? Account { get; }
-		private string? Issuer { get; }
-		private string? SecretKey { get; }
+		public Period Period { get; }
+		public Digits Digits { get; }
+		public string? Account { get; }
+		public string? Issuer { get; }
+		public string? SecretKey { get; }
 		public string URI { get; }
 
 		private HMAC? HMAC { get; }

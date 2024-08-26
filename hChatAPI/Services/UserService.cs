@@ -1,7 +1,12 @@
-﻿using System.Security.Claims;
+﻿using System.Security.Cryptography;
 using hChatAPI.Interfaces;
 using hChatAPI.Models;
 using hChatAPI.Models.Requests;
+using hChatAPI.Models.Responses;
+using hChatAPI.Services._2FA;
+using hChatShared;
+using Microsoft.EntityFrameworkCore;
+using HashAlgorithm = hChatAPI.Services._2FA.HashAlgorithm;
 
 namespace hChatAPI.Services {
 	public class UserService : IUserService {
@@ -77,6 +82,43 @@ namespace hChatAPI.Services {
 			}
 			user.RevocationTime = DateTime.UtcNow.AddSeconds(-1);
 			await _context.SaveChangesAsync();
+		}
+
+		public async Task<User2FASetupResponse> Setup2FA(string userId) {
+			var user = await _context.Users.Include(u=> u.User2FA).ThenInclude(u=>u.BackupCodes).FirstOrDefaultAsync(u => u.Username == userId);
+			if (user == null) {
+				throw new InvalidOperationException("User not found in DB");
+			}
+
+			var totp = new TOTP(HashAlgorithm.SHA256, account: user.Username);
+			
+			//TODO: Encrypt using AES-256
+			user.User2FA.SecretKey = totp.SecretKey;
+
+			var codes = new string[5];
+			
+			using (var rng = RandomNumberGenerator.Create()) {
+				for (int i = 0; i < 5; i++) {
+					var bytes = new byte[16];
+					rng.GetBytes(bytes);
+					var code = Base32Encoder.Encode(bytes);
+					codes[i] = code;
+					var backupCode = new UserBackupCode {
+						HashedCode = BCrypt.Net.BCrypt.HashPassword(code, 12),
+						IsUsed = false
+					};
+					user.User2FA.BackupCodes.Add(backupCode);
+				}
+			}
+
+			var response = new User2FASetupResponse {
+				Uri = totp.URI,
+				BackupCodes = codes
+			};
+
+			await _context.SaveChangesAsync();
+			
+			return response;
 		}
 	}
 
