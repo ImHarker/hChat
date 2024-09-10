@@ -1,4 +1,5 @@
-﻿using hChatAPI.Models.Requests;
+﻿using hChatAPI.Models;
+using hChatAPI.Models.Requests;
 using hChatAPI.Services;
 using hChatAPI.Services._2FA;
 using Microsoft.AspNetCore.Authorization;
@@ -103,7 +104,7 @@ namespace hChatAPI.Controllers {
 		
 		[HttpPost("setup2fa")]
 		[Authorize(AuthenticationSchemes = "ChallengeTokenScheme")]
-		public async Task<IActionResult> CompleteSetup2FA([FromBody] TwoFACode code) {
+		public async Task<IActionResult> CompleteSetup2FA([FromBody] TwoFACodeRequest codeRequest) {
 			var username = User.Claims.First(c => c.Type == "userId").Value;
 			var user = await _context.Users.Include(user => user.User2FA).FirstOrDefaultAsync(u => u.Username == username);
 			if(user == null) return BadRequest();
@@ -111,7 +112,7 @@ namespace hChatAPI.Controllers {
 
 			var secret = user.User2FA.SecretKey;
 			var otp = new TOTP(secretKey: secret, account: user.Username);
-			var valid = otp.GetValidCodes().Contains(code.Code);
+			var valid = otp.GetValidCodes().Contains(codeRequest.Code);
 			
 			if(!valid) return BadRequest("Invalid 2FA code.");
 
@@ -149,7 +150,35 @@ namespace hChatAPI.Controllers {
 			}
 		}
 		
+		[HttpPost("recover2fa")]
+		[Authorize(AuthenticationSchemes = "ChallengeTokenScheme")]
+		public async Task<IActionResult> Recovery2FA([FromBody] Recovery2FARequest recovery2FaRequest) {
+			if (!ModelState.IsValid) {
+				return BadRequest(ModelState);
+			}
 
+			User user;
+			try {
+				user = _userService.Login(recovery2FaRequest.UserAuthRequest);
+				await _userService.Revoke(user.Username);
+			} catch (UserAuthenticationException e) {
+				return BadRequest(e.Message);
+			}
+			if(user == null) return BadRequest();
+			if (!user.User2FA.Is2FAEnabled) return BadRequest("2FA is not enabled");
+
+			foreach (var backupCode in user.User2FA.BackupCodes) {
+				if (!BCrypt.Net.BCrypt.Verify(recovery2FaRequest.Code, backupCode.HashedCode)) continue;
+				backupCode.IsUsed = true;
+				user.User2FA.Is2FAEnabled = false;
+				await _context.SaveChangesAsync();
+				//TODO: reset 2fa instead of disabling it 
+				return Ok("2FA disabled!");
+			}
+			
+			return BadRequest("Invalid Backup Code");
+		}
+        
 		[HttpGet("challengeTokenTest")]
 		[Authorize(AuthenticationSchemes = "ChallengeTokenScheme")]
 		public async Task<IActionResult> ChallengeTokenTest() {

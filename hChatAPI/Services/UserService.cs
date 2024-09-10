@@ -60,7 +60,7 @@ namespace hChatAPI.Services {
 		}
 
 		public User Login(UserAuthRequest request) {
-			var user = _context.Users.FirstOrDefault(u => u.Username == request.Username);
+			var user = _context.Users.Include(u=> u.User2FA).ThenInclude(u=> u.BackupCodes ).FirstOrDefault(u => u.Username == request.Username);
 			var dummyHash = "$2a$12$Nu5.aVWnLDLZfwJHuDQMveUVjpu.zSI4ECFYDvlqeGxtueLmfkNJ.";
 			var hashToVerify = user?.PasswordHash ?? dummyHash;
 			

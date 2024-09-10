@@ -1,5 +1,5 @@
 namespace hChatAPI.Models.Requests;
 
-public class TwoFACode {
+public class TwoFACodeRequest {
     public string Code { get; set; }
 }
