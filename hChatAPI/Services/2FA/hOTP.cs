@@ -48,7 +48,12 @@ namespace hChatAPI.Services._2FA {
 				HMAC.Key = Base32Encoder.Decode(SecretKey);
 			}
 			else {
-				SecretKey = Base32Encoder.Encode(HMAC.Key);
+				byte[] bytes = new byte[32];
+				using (var rng = RandomNumberGenerator.Create()) {
+					rng.GetBytes(bytes);
+				}
+
+				SecretKey = Base32Encoder.Encode(bytes);
 			}
 
 			URI = $"otpauth://totp/{Uri.EscapeDataString(Issuer ??= "")}:{Uri.EscapeDataString(Account ??= "")}" +

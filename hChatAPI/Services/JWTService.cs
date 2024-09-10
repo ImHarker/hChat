@@ -23,7 +23,7 @@ namespace hChatAPI.Services {
 
 				var tokenDescriptor = new SecurityTokenDescriptor {
 					Subject = new ClaimsIdentity(new[] { new Claim("userId", userId) }),
-					Expires = DateTime.UtcNow.AddSeconds(10),
+					Expires = DateTime.UtcNow.AddHours(1),
 					Issuer = _issuer,
 					Audience = _audience,
 					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
@@ -41,7 +41,7 @@ namespace hChatAPI.Services {
 
 				var tokenDescriptor = new SecurityTokenDescriptor {
 					Subject = new ClaimsIdentity(new[] { new Claim("userId", userId) }),
-					Expires = DateTime.UtcNow.AddSeconds(10),
+					Expires = DateTime.UtcNow.AddDays(1),
 					Issuer = _issuer,
 					Audience = "Refresh",
 					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),
@@ -59,7 +59,7 @@ namespace hChatAPI.Services {
 
 				var tokenDescriptor = new SecurityTokenDescriptor {
 					Subject = new ClaimsIdentity(new[] { new Claim("userId", userId) }),
-					Expires = DateTime.UtcNow.AddSeconds(10),
+					Expires = DateTime.UtcNow.AddMinutes(10),
 					Issuer = _issuer,
 					Audience = "Challenge",
 					SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key),

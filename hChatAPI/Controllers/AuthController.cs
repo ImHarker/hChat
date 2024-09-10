@@ -1,5 +1,6 @@
 ﻿using hChatAPI.Models.Requests;
 using hChatAPI.Services;
+using hChatAPI.Services._2FA;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -98,6 +99,26 @@ namespace hChatAPI.Controllers {
 			var challengeToken = _jwtService.GenerateChallengeToken(user.Username);
 			resp.ChallengeToken = challengeToken;
 			return Ok(resp);
+		}
+		
+		[HttpPost("setup2fa")]
+		[Authorize(AuthenticationSchemes = "ChallengeTokenScheme")]
+		public async Task<IActionResult> CompleteSetup2FA([FromBody] TwoFACode code) {
+			var username = User.Claims.First(c => c.Type == "userId").Value;
+			var user = await _context.Users.Include(user => user.User2FA).FirstOrDefaultAsync(u => u.Username == username);
+			if(user == null) return BadRequest();
+			if (user.User2FA.Is2FAEnabled) return BadRequest("2FA is already enabled");
+
+			var secret = user.User2FA.SecretKey;
+			var otp = new TOTP(secretKey: secret, account: user.Username);
+			var valid = otp.GetValidCodes().Contains(code.Code);
+			
+			if(!valid) return BadRequest("Invalid 2FA code.");
+
+			user.User2FA.Is2FAEnabled = true;
+			await _context.SaveChangesAsync();
+			
+			return Ok();
 		}
 
 		[HttpGet("refreshTokenTest")]
