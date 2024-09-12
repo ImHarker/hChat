@@ -23,7 +23,7 @@ namespace hChatAPI {
 			builder.Services.AddSwaggerGen(c =>
 			{
 				c.SwaggerDoc("v1", new OpenApiInfo { Title = "hChatAPI", Version = "v1" });
-
+				c.EnableAnnotations();
 				//Access Token
 				c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
 					Description = "JWT Authorization header using the Bearer scheme.",

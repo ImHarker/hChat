@@ -5,6 +5,7 @@ using hChatAPI.Services._2FA;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 using static hChatAPI.Services.JWTService;
 
 namespace hChatAPI.Controllers {
@@ -41,7 +42,7 @@ namespace hChatAPI.Controllers {
 			}
 
 		}
-
+		
 		[HttpPost("login")]
 		public async Task<IActionResult> LoginAsync([FromBody] UserAuthRequest request) {
 
@@ -59,6 +60,7 @@ namespace hChatAPI.Controllers {
 
 		}
 
+		[SwaggerOperation(Tags = ["Test"])]
 		[HttpGet("protected")]
 		[Authorize]
 		public IActionResult ProtectedEndpoint() {
@@ -87,7 +89,8 @@ namespace hChatAPI.Controllers {
 			}
 			return Ok("Logged Out.");
 		}
-        
+		
+		[SwaggerOperation(Tags = ["2FA"])]
 		[HttpGet("setup2fa")]
 		[Authorize]
 		public async Task<IActionResult> Setup2FA() {
@@ -102,6 +105,7 @@ namespace hChatAPI.Controllers {
 			return Ok(resp);
 		}
 		
+		[SwaggerOperation(Tags = ["2FA"])]
 		[HttpPost("setup2fa")]
 		[Authorize(AuthenticationSchemes = "ChallengeTokenScheme")]
 		public async Task<IActionResult> CompleteSetup2FA([FromBody] TwoFACodeRequest codeRequest) {
@@ -122,15 +126,17 @@ namespace hChatAPI.Controllers {
 			return Ok();
 		}
 
+		[SwaggerOperation(Tags = ["Test"])]
 		[HttpGet("refreshTokenTest")]
 		[Authorize(AuthenticationSchemes = "RefreshTokenScheme")]
-		public async Task<IActionResult> RefreshTokenTest() {
+		public IActionResult RefreshTokenTest() {
 			return Ok("Valid Refresh Token.");
 		}
 
+		[SwaggerOperation(Tags = ["Test"])]
 		[HttpGet("newRefreshToken")]
 		[Authorize]
-		public async Task<IActionResult> NewRefreshToken() {
+		public IActionResult NewRefreshToken() {
 			try {
 				var username = User.Claims.First(c => c.Type == "userId").Value;
 				return Ok(_jwtService.GenerateRefreshToken(username));
@@ -139,9 +145,10 @@ namespace hChatAPI.Controllers {
 			}
 		}
 		
+		[SwaggerOperation(Tags = ["Test"])]
 		[HttpGet("newChallengeToken")]
 		[Authorize]
-		public async Task<IActionResult> NewChallengeToken() {
+		public IActionResult NewChallengeToken() {
 			try {
 				var username = User.Claims.First(c => c.Type == "userId").Value;
 				return Ok(_jwtService.GenerateChallengeToken(username));
@@ -150,6 +157,7 @@ namespace hChatAPI.Controllers {
 			}
 		}
 		
+		[SwaggerOperation(Tags = ["2FA"])]
 		[HttpPost("recover2fa")]
 		[Authorize(AuthenticationSchemes = "ChallengeTokenScheme")]
 		public async Task<IActionResult> Recovery2FA([FromBody] Recovery2FARequest recovery2FaRequest) {
@@ -164,7 +172,6 @@ namespace hChatAPI.Controllers {
 			} catch (UserAuthenticationException e) {
 				return BadRequest(e.Message);
 			}
-			if(user == null) return BadRequest();
 			if (!user.User2FA.Is2FAEnabled) return BadRequest("2FA is not enabled");
 
 			foreach (var backupCode in user.User2FA.BackupCodes) {
@@ -179,9 +186,10 @@ namespace hChatAPI.Controllers {
 			return BadRequest("Invalid Backup Code");
 		}
         
+		[SwaggerOperation(Tags = ["Test"])]
 		[HttpGet("challengeTokenTest")]
 		[Authorize(AuthenticationSchemes = "ChallengeTokenScheme")]
-		public async Task<IActionResult> ChallengeTokenTest() {
+		public IActionResult ChallengeTokenTest() {
 			return Ok("Valid Challenge Token.");
 		}
 
